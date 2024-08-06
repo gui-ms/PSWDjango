@@ -31,3 +31,6 @@ def cadastro(request):
         
         user = User.objects.create_user(username=username, password=senha)
         return redirect('/usuarios/logar')
+
+def logar(request):
+    return render(request, 'logar.html')
