@@ -47,3 +47,7 @@ class Empresas(models.Model):
         if date.today() > self.data_final_captacao:
             return mark_safe('<span class="badge bg-success">Captação finalizada</span>')
         return mark_safe('<span class="badge bg-primary">Em Captação</span>')
+    
+    @property
+    def valuation(self):
+        return f'{(100*self.valor)/self.percentual_equity:.3f}'
