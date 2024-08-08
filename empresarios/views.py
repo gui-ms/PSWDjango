@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
-from .models import Empresas
+from .models import Documento, Empresas
 from django.contrib import messages
 from django.contrib.messages import constants
 
@@ -63,6 +63,56 @@ def listar_empresas(request):
 
 def empresa(request, id):
     empresa = Empresas.objects.get(id=id)
+    if empresa.user != request.user:
+        messages.add_message(request, constants.ERROR, "Essa empresa não é sua!")
+        return redirect(f'/empresarios/listar_empresas')
+    
     if request.method == 'GET':
-        return render(request, 'empresa.html', {'empresa': empresa})
-    return HttpResponse('teste')
+        documentos = Documento.objects.filter(empresa=empresa)
+        return render(request, 'empresa.html', {
+            'empresa': empresa,
+            'documentos': documentos})
+
+def add_doc(request, id):
+    empresa = Empresas.objects.get(id=id)
+    titulo = request.POST.get('titulo')
+    arquivo = request.FILES.get('arquivo')
+
+    if not arquivo:
+        messages.add_message(request, constants.ERROR, "Adicione um arquivo!")
+        return redirect(f'/empresarios/empresa/{id}')
+    
+    extensao = arquivo.name.split('.')
+
+    if empresa.user != request.user:
+        messages.add_message(request, constants.ERROR, "Essa empresa não é sua!")
+        return redirect(f'/empresarios/listar_empresas')
+
+    if extensao[1] != 'pdf':
+        messages.add_message(request, constants.ERROR, "Envie apenas pdf!")
+        return redirect(f'/empresarios/empresa/{id}')
+
+    
+
+    documento = Documento(
+        empresa = empresa,
+        titulo = titulo,
+        arquivo = arquivo
+    )
+
+    documento.save()
+
+    messages.add_message(request, constants.SUCCESS, 'Arquivo enviado')
+    return redirect(f'/empresarios/empresa/{id}')
+
+def excluir_doc(request, id):
+    documento = Documento.objects.get(id=id)
+    if documento.empresa.user != request.user:
+        messages.add_message(request, constants.ERROR, "Esse documento não é seu!")
+        return redirect(f'/empresarios/empresa/{empresa.id}')
+
+    documento.delete()
+    messages.add_message(request, constants.INFO, 'Arquivo excluído com sucesso')
+    #The id received here is the id of the document, but we need the company id
+    #So we gotta do it this way instead.
+    return redirect(f'/empresarios/empresa/{documento.empresa.id}')
