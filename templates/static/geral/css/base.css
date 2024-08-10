@@ -1,7 +1,7 @@
 :root{
 
     --main-color: #161424;
-    --dark-color: #0D0C16;
+    --dark-color: #0d160c;
     --contrast-color: #4F46E5;
    }
    body{
@@ -18,7 +18,7 @@
     color: var(--dark-color);
    }
 
-   dark-color{
+   .dark-color{
     background-color: var(--dark-color);
     color: white !important;
    }
