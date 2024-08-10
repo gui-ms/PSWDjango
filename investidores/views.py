@@ -1,6 +1,6 @@
 from django.shortcuts import redirect, render
 
-from empresarios.models import Empresas
+from empresarios.models import Documento, Empresas
 
 # Create your views here.
 def sugestao(request):
@@ -31,3 +31,10 @@ def sugestao(request):
             'areas': Empresas.area_choices,
             'empresas': empresas_selecionadas})
 
+def ver_empresa(request, id):
+    empresa = Empresas.objects.get(id=id)
+    documentos = Documento.objects.filter(empresa=empresa)
+    return render(request, 'ver_empresa.html', {
+        'empresa': empresa,
+        'documentos': documentos,
+    })
